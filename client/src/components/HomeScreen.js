@@ -18,8 +18,7 @@ const HomeScreen = () => {
     useEffect(() => {
         store.loadIdNamePairs();
     }, []);
-
-    function handleCreateNewList() {
+    const handleCreateNewList = (event) => {
         store.createNewList();
     }
     let listCard = "";
@@ -36,34 +35,28 @@ const HomeScreen = () => {
                 ))
                 
             }
-            <Fab sx={{transform:"translate(1150%, 10%)"}}
-                color="primary" 
-                aria-label="add"
-                id="add-list-button"
-                onClick={handleCreateNewList}
-            >
-                <AddIcon />
-            </Fab>
             </List>;
     }
     return (
         <div id="playlist-selector">
             <div id="list-selector-heading">
-            <Fab sx={{transform:"translate(-20%, 0%)"}}
-                color="primary" 
-                aria-label="add"
-                id="add-list-button"
-                onClick={handleCreateNewList}
-            >
-                <AddIcon />
-            </Fab>
-                Your Playlists
             </div>
             <Box sx={{bgcolor:"background.paper"}} id="list-selector-list">
                 {
                     listCard
                 }
                 <MUIDeleteModal />
+            <Fab sx={{transform:"translate(-20%, 0%)", bottom: 0, left: "50%", position: "relative"}}
+                color="blue" 
+                aria-label="add"
+                id="add-list-button"
+                onClick={handleCreateNewList}
+            >
+                <AddIcon />
+            </Fab>
+            <div id = "your-list-text">
+                Your Lists
+            </div>
             </Box>
         </div>)
 }

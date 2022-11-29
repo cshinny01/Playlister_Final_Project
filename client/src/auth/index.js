@@ -90,8 +90,6 @@ function AuthContextProvider(props) {
                 })
                 history.push("/login");
                 console.log("NOW WE LOGIN");
-                auth.loginUser(email, password);
-                console.log("LOGGED IN");
             }
         } catch(error){
             authReducer({

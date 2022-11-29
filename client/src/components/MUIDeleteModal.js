@@ -15,10 +15,10 @@ const style1 = {
     width: 345,
     height: 250,
     backgroundSize: "contain",
-    backgroundImage: `url(https://i.insider.com/602ee9ced3ad27001837f2ac?})`,
     border: '3px solid #000',
     padding: '20px',
-    boxShadow: 24,
+    variant: 'outlined',
+    backgroundColor: "#CBC3E3"
 };
 
 export default function MUIDeleteModal() {
@@ -45,7 +45,7 @@ export default function MUIDeleteModal() {
                 Delete Playlist
             </Typography>
             <Divider sx={{borderBottomWidth: 5, p: '5px', transform: 'translate(-5.5%, 0%)', width:377}}/>
-            <Box sx={{background: "rgb(172,79,198,0.05)"}}>
+            <Box sx={{backgroundColor: "#ede7f6"}}>
             <Typography id="modal-modal-description" variant="h6" sx={{color: "#301974" ,fontWeight: 'bold', mt: 1}}>
                 Are you sure you want to delete the <Typography display="inline" id="modal-modal-description" variant="h6" sx={{color: "#820747CF" ,fontWeight: 'bold', mt: 2, textDecoration: 'underline'}}>{name}</Typography> playlist?
             </Typography>

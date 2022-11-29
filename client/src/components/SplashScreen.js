@@ -18,7 +18,7 @@ export default function SplashScreen() {
                 <Button
                     variant="contained"
                     size="medium"
-                    sx={{margin:2, top:5}}>Login</Button>
+                    sx={{margin:2}}>Login</Button>
             </Link>
             <div id="dont-have-account">
                 Don't have an account? Register now!
@@ -28,6 +28,15 @@ export default function SplashScreen() {
                     variant="contained"
                     size="medium"
                     sx={{margin:2, top:5}}>Register an Account!</Button>
+            </Link>
+            <div id="guest-user">
+                Want to explore? Continue as guest!
+            </div>
+            <Link to='/register'>
+                <Button
+                    variant="contained"
+                    size="medium"
+                    sx={{margin:2, top:5}}>Continue as Guest</Button>
             </Link>
         </div>
     )

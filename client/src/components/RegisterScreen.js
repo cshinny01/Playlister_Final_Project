@@ -109,14 +109,16 @@ export default function RegisterScreen() {
                                 />
                             </Grid>
                         </Grid>
-                        <Button
-                            type="submit"
-                            fullWidth
-                            variant="contained"
-                            sx={{ mt: 3, mb: 2 }}
-                        >
-                            Sign Up
-                        </Button>
+                        <Link to="/login">
+                            <Button
+                                type="submit"
+                                fullWidth
+                                variant="contained"
+                                sx={{ mt: 3, mb: 2 }}
+                            >
+                                Sign Up
+                            </Button>
+                        </Link>
                         <Grid container justifyContent="flex-end">
                             <Grid item>
                                 <Link href="/login/" variant="body2">

@@ -60,13 +60,21 @@ body {
 
 }
 #dont-have-account{
-  font-size: 3vw;
-  padding-top: 5%;
+  font-size: 1vw;
+  padding-top: 1%;
   color: yellow;
 }
 #have-account{
-  font-size: 3vw;
-  padding-top: 5%;
+  font-size: 1vw;
+  padding-top: 1%;
+  color: yellow;
+}
+#your-list-text{
+  text-align: center;
+}
+#guest-user{
+  font-size: 1vw;
+  padding-top: 1%;
   color: yellow;
 }
 #splash-screen {
@@ -81,7 +89,7 @@ body {
   border-radius: 2px;
   padding-top: 1%;
   padding-bottom: 14%;
-  height:70%;
+  height:100%;
   text-align: center;
   vertical-align: center;
 }
