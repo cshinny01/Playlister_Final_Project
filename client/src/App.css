@@ -71,6 +71,7 @@ body {
 }
 #your-list-text{
   text-align: center;
+  font-size: 30px;
 }
 #guest-user{
   font-size: 1vw;
@@ -97,6 +98,7 @@ body {
 #edit-toolbar {
   background-color: transparent;
   transform: translate(41%, 0%);
+  left: -9999999999999px;
 }
 
 .playlister-button,
@@ -181,9 +183,14 @@ body {
   height: 90%;
   display: flex;
   flex-direction: column;
-  overflow: scroll;
-}
 
+}
+#video-player{
+  position: absolute;
+  top: 100px;
+  right: 0px;
+  width: 50%;
+}
 
 .list-card,
 .selected-list-card,

@@ -27,8 +27,17 @@ function EditToolbar() {
     function handleClose() {
         store.closeCurrentList();
     }
+    function handleDuplicateList() {
+        store.duplicateList();
+    }
     return (
         <div id="edit-toolbar">
+            <Button
+                id='duplicate-list-button'
+                onClick={handleDuplicateList}
+                variant="contained">
+                Duplicate
+                </Button>
             <Button
                 disabled={!store.canAddNewSong()}
                 id='add-song-button'
