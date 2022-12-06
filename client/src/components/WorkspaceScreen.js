@@ -5,8 +5,6 @@ import MUIEditSongModal from './MUIEditSongModal'
 import MUIRemoveSongModal from './MUIRemoveSongModal'
 import Box from '@mui/material/Box';
 import List from '@mui/material/List';
-import AddIcon from '@mui/icons-material/Add';
-import Fab from '@mui/material/Fab';
 import { GlobalStoreContext } from '../store/index.js'
 /*
     This React component lets us edit a loaded list, which only
@@ -29,7 +27,7 @@ function WorkspaceScreen() {
         <Box id="list-selector-list">
         <List 
             id="playlist-cards" 
-            sx={{height: '87%', width: '100%', bgcolor: '#8000F00F'}}
+            sx={{height: 'auto', width: 'auto', bgcolor: '#8000F00F'}}
         >
             {
                 store.currentList.songs.map((song, index) => (

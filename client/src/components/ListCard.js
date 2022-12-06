@@ -1,16 +1,22 @@
 import { useContext, useState } from 'react'
 import AuthContext from '../auth';
+import React from 'react';
 import { GlobalStoreContext } from '../store'
 import Box from '@mui/material/Box';
-import Grid from '@mui/material/Grid';
-import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
-import { Stack } from '@mui/material';
-import Collapse from "@mui/material/Collapse";
+import List from '@mui/material/List';
+import SongCard from './SongCard.js'
+import MUIEditSongModal from './MUIEditSongModal'
+import MUIRemoveSongModal from './MUIRemoveSongModal'
 import IconButton from '@mui/material/IconButton';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import ListItem from '@mui/material/ListItem';
 import TextField from '@mui/material/TextField';
+
+import ThumbDownIcon from '@mui/icons-material/ThumbDown';
+import {Accordion, AccordionSummary, AccordionDetails, Typography} from '@mui/material'
+import ThumbUpIcon from '@mui/icons-material/ThumbUp';
+import WorkspaceScreen from './WorkspaceScreen';
+
 
 /*
     This is a card in our list of top 5 lists. It lets select
@@ -22,11 +28,27 @@ import TextField from '@mui/material/TextField';
 function ListCard(props) {
     const { store } = useContext(GlobalStoreContext);
     const { auth } = useContext(AuthContext);
+    const [isChecked, setIsChecked] = React.useState(false);
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
     const { idNamePair, selected } = props;
     const [open, setOpen] = useState(false);
-
+    const [ expanded, setExpanded ] = useState(false);
+    let deleteButton = <div></div>;
+    const accordionData = {
+        title: "",
+        content: []
+    }
+    const handleChange = (isExpanded) => {
+        setExpanded(isExpanded ? true: false);
+    }
+    let modalJSX = "";
+    if (store.isEditSongModalOpen()) {
+        modalJSX = <MUIEditSongModal />;
+    }
+    else if (store.isRemoveSongModalOpen()) {
+        modalJSX = <MUIRemoveSongModal />;
+    }
     function handleLoadList(event, id) {
         console.log("handleLoadList for " + id);
         if (!event.target.disabled) {
@@ -40,7 +62,6 @@ function ListCard(props) {
             store.setCurrentList(id);
         }
     }
-
     function handleToggleEdit(event) {
         event.stopPropagation();
         toggleEdit();
@@ -71,7 +92,12 @@ function ListCard(props) {
     function handleUpdateText(event) {
         setText(event.target.value);
     }
-
+    function handleLikes(event){
+        store.addLike();
+    }
+    function handleDislikes(event){
+        store.addDislike();
+    }
     let selectClass = "unselected-list-card";
     if (selected) {
         selectClass = "selected-list-card";
@@ -90,36 +116,42 @@ function ListCard(props) {
         <ListItem
             id={idNamePair._id}
             key={idNamePair._id}
+            className={selectClass}
             sx={{borderRadius:"25px", p: "10px", bgcolor: '#8000F00F', marginTop: '15px', display: 'flex', p: 1 }}
             style={{transform:"translate(1%,0%)", width: '100%', fontSize: '12pt' }}
             button
             onDoubleClick={(event) => {
-                handleToggleEdit(event)
+                   handleToggleEdit(event)
             }}
         >
-            <Grid container spacing={2}>
-                <Grid item xs={3}>
-                    <Box sx={{display: "flex", alignItems:"flex-start" }}>{idNamePair.name}</Box>
-                </Grid>
-                <Grid item xs={2}>
-                    <Box sx={{display: "flex-start"}}>Likes and Dislikes </Box>
-                </Grid>
-                <Grid item xs={3}>
-                    <Box sx={{p:2}}>By: {username}</Box>
-                </Grid>
-                <Grid item xs={5}>
-                    <Box sx={{ display: "flex", alignItems: "flex-end", justifyContent: "flex-end"}}>
-                        <IconButton onClick={(event) => {
-                                handleLoadList(event, idNamePair._id)
-                            }} aria-label='delete'>
-                            <KeyboardDoubleArrowDownIcon style={{fontSize:'20pt'}} />
-                        </IconButton>
-                        <Collapse in={open} timeout="auto" unmountOnExit></Collapse>
+            <Accordion sx={{height: "100%", width: "100%"}} expanded={expanded} onChange={(event, isExpanded) => handleChange(isExpanded, true)} onClick={(event) => {
+                handleLoadList(event, idNamePair._id)
+            }}>
+                <AccordionSummary id='panel' expandIcon={<KeyboardDoubleArrowDownIcon/>}>
+                    <Box sx ={{display: "flex", alignItems:"flex-start", flexDirection: "column", p: 1, m: 1, borderRadius: 1}}>
+                        <Box>
+                            <div id="name-playlist">{idNamePair.name}</div></Box>
+                        <Box>By: {username}</Box>
+                        <Box>{published}</Box>
                     </Box>
-                </Grid>    
-                
-            </Grid>
+                    <Box sx ={{display: "flex", alignItems:"flex-start", flexDirection: "row", p: 1, m: 1, borderRadius: 1}}>
+                    <Box sx={{m:2}}>
+                        <IconButton onClick={(event) => {
+                        handleLikes(event)}}><ThumbUpIcon/></IconButton>
+                        <Box></Box>
+                    </Box>
+                    <Box sx={{m:3}}>
+                        <IconButton onClick={(event) => {
+                        handleDislikes(event)}}><ThumbDownIcon /></IconButton>
+                    </Box>
+                    </Box>
+                </AccordionSummary>
+                <AccordionDetails>
+                    
+                </AccordionDetails>
+            </Accordion>
         </ListItem>
+        
 
     if (editActive) {
         cardElement =

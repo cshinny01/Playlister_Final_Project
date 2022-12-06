@@ -1,6 +1,7 @@
 import { useContext } from 'react'
 import AuthContext from '../auth'
 import { GlobalStoreContext } from '../store'
+import EditToolbar from './EditToolbar'
 
 /*
     Our Status bar React component goes at the bottom of our UI.
@@ -25,7 +26,11 @@ function Statusbar() {
     return (
         <div id="playlister-statusbar">
             {text}
+            <div id="edit-toolbar">
+                <EditToolbar/>
+            </div>
         </div>
+        
     );
     }
     return null;

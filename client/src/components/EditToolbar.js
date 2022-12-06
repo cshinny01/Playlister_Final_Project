@@ -6,13 +6,15 @@ import RedoIcon from '@mui/icons-material/Redo';
 import UndoIcon from '@mui/icons-material/Undo';
 import CloseIcon from '@mui/icons-material/HighlightOff';
 
+
 /*
     This toolbar is a functional React component that
     manages the undo/redo/close buttons.
     
     @author McKilla Gorilla
 */
-function EditToolbar() {
+function EditToolbar(props) {
+    const { idNamePair, selected } = props;
     const { store } = useContext(GlobalStoreContext);
 
     function handleAddNewSong() {
@@ -27,17 +29,30 @@ function EditToolbar() {
     function handleClose() {
         store.closeCurrentList();
     }
-    function handleDuplicateList() {
-        store.duplicateList();
+    function handleDuplicateList(event, id) {
+        store.duplicateList(id);
+    }
+    async function handleDeleteList(event, id) {
+        event.stopPropagation();
+        let _id = event.target.id;
+        _id = ("" + _id).substring("delete-list-".length);
+        store.markListForDeletion(id);
     }
     return (
         <div id="edit-toolbar">
             <Button
+                id="delete-list-button"
+                onClick={(event) => {
+                    handleDeleteList(event, idNamePair._id)}}
+                variant="contained">
+                Delete
+            </Button>
+            <Button
                 id='duplicate-list-button'
-                onClick={handleDuplicateList}
+                onClick={(event) => {handleDuplicateList(event, idNamePair._id)}}
                 variant="contained">
                 Duplicate
-                </Button>
+            </Button>
             <Button
                 disabled={!store.canAddNewSong()}
                 id='add-song-button'
@@ -57,7 +72,7 @@ function EditToolbar() {
                 id='redo-button'
                 onClick={handleRedo}
                 variant="contained">
-                    <RedoIcon />
+                <RedoIcon />
             </Button>
             <Button 
                 disabled={!store.canClose()}
