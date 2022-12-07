@@ -18,7 +18,7 @@ export default function SplashScreen() {
                 <Button
                     variant="contained"
                     size="medium"
-                    sx={{margin:2}}>Login</Button>
+                    sx={{margin:2, top:5}}>Login</Button>
             </Link>
             <div id="dont-have-account">
                 Don't have an account? Register now!

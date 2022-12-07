@@ -1,5 +1,6 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import AuthContext from '../auth';
+import { useHistory } from 'react-router-dom'
 import React from 'react';
 import { GlobalStoreContext } from '../store'
 import Box from '@mui/material/Box';
@@ -11,11 +12,14 @@ import IconButton from '@mui/material/IconButton';
 import KeyboardDoubleArrowDownIcon from '@mui/icons-material/KeyboardDoubleArrowDown';
 import ListItem from '@mui/material/ListItem';
 import TextField from '@mui/material/TextField';
-
+import Button from '@mui/material/Button';
+import AddIcon from '@mui/icons-material/Add';
 import ThumbDownIcon from '@mui/icons-material/ThumbDown';
 import {Accordion, AccordionSummary, AccordionDetails, Typography} from '@mui/material'
 import ThumbUpIcon from '@mui/icons-material/ThumbUp';
 import WorkspaceScreen from './WorkspaceScreen';
+import Statusbar from './Statusbar';
+import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 
 
 /*
@@ -31,17 +35,36 @@ function ListCard(props) {
     const [isChecked, setIsChecked] = React.useState(false);
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
-    const { idNamePair, selected } = props;
+    const [isPublished, setPublished] = useState(false);
+    const { idNamePair, selected, songs } = props;
     const [open, setOpen] = useState(false);
     const [ expanded, setExpanded ] = useState(false);
-    let deleteButton = <div></div>;
-    const accordionData = {
-        title: "",
-        content: []
+    store.history = useHistory()
+
+    useEffect(() => {
+        if(store?.currentList){
+            if(store.currentList._id === idNamePair._id){
+                console.log("Expanded card is same as currentList")
+
+            }
+            
+        }
+    }, [store?.currentList])
+    let playlistSongs = "";
+    function handleExpand(event){
+        event.stopPropagation();
+        setExpanded(true);
+        store.getListById(idNamePair._id);
+        console.log("Expanded");
     }
-    const handleChange = (isExpanded) => {
-        setExpanded(isExpanded ? true: false);
+    function handleCollaspe(event){
+        event.stopPropagation();
+        setExpanded(false);
+        store.closeCurrentList();
+        console.log("not expanded");
     }
+    let likes = "";
+    let dislikes = "";
     let modalJSX = "";
     if (store.isEditSongModalOpen()) {
         modalJSX = <MUIEditSongModal />;
@@ -49,22 +72,15 @@ function ListCard(props) {
     else if (store.isRemoveSongModalOpen()) {
         modalJSX = <MUIRemoveSongModal />;
     }
-    function handleLoadList(event, id) {
-        console.log("handleLoadList for " + id);
-        if (!event.target.disabled) {
-            let _id = event.target.id;
-            if (_id.indexOf('list-card-text-') >= 0)
-                _id = ("" + _id).substring("list-card-text-".length);
-
-            console.log("load " + event.target.id);
-
-            // CHANGE THE CURRENT LIST
-            store.setCurrentList(id);
-        }
+    function handleAddSong(event) {
+        event.stopPropagation();
+        store.addNewSong();
     }
     function handleToggleEdit(event) {
-        event.stopPropagation();
-        toggleEdit();
+        if (expanded === false){
+            event.stopPropagation();
+            toggleEdit();
+        }
     }
 
     function toggleEdit() {
@@ -74,15 +90,35 @@ function ListCard(props) {
         }
         setEditActive(newActive);
     }
-
     async function handleDeleteList(event, id) {
         event.stopPropagation();
         let _id = event.target.id;
         _id = ("" + _id).substring("delete-list-".length);
         store.markListForDeletion(id);
     }
-
+    function handleLikes(event, id){
+        event.stopPropagation();
+        store.addLikes(id);
+    }
+    function handleDislikes(event, id){
+        event.stopPropagation();
+        store.addDislikes(id);
+    }
+    function handleUndo(event){
+        event.stopPropagation();
+        store.undo();
+    }
+    function handleRedo(event){
+        event.stopPropagation();
+        store.redo();
+    }
+    function handlePublishList(event, id){
+        event.stopPropagation();
+        setPublished(true);
+        store.publishList(id);
+    }
     function handleKeyPress(event) {
+        event.stopPropagation();
         if (event.code === "Enter") {
             let id = event.target.id.substring("list-".length);
             store.changeListName(id, text);
@@ -90,14 +126,61 @@ function ListCard(props) {
         }
     }
     function handleUpdateText(event) {
+        event.stopPropagation();
         setText(event.target.value);
     }
-    function handleLikes(event){
-        store.addLike();
+    function handleDuplicateList(event, id){
+        event.stopPropagation();
+        store.duplicateList(id);
     }
-    function handleDislikes(event){
-        store.addDislike();
+    let date = new Date();
+    let day = date.getDate();
+    let month = date.getMonth()+1;
+    let year = date.getFullYear();
+    let published = "published on " + month + "/" + day + "/" + year;
+    
+    if (store?.currentList?._id === idNamePair._id){
+        console.log("Current list is equal to this list card")
+
+        playlistSongs= <List sx ={{height:"100%", overflow: "auto", width: "auto"}}>
+            {
+                store.currentList.songs?.map((song, index) => (
+                    <SongCard
+                        id={'playlist-song-' + (index)}
+                        key={'playlist-song-' + (index)}
+                        index={index}
+                        song={song}
+                    />
+                ))  
+            }
+            {!isPublished ?
+                <>
+                <Button sx={{p:1, width:"100%", justifyContent: "flex-center"}} onClick={(event) => {handleAddSong(event)}}>
+                <AddIcon />
+                </Button>
+                </> :
+                <></>
+                }
+            
+            {isPublished?
+
+                <>  
+                
+                <IconButton sx = {{p:1}} onClick={(event) =>handleDeleteList(event, idNamePair._id)}>Delete</IconButton>
+                <IconButton sx ={{p:1}} onClick={(event) => handleDuplicateList(event, idNamePair._id)}>Duplicate</IconButton>
+                </> :
+                <>
+                <IconButton sx = {{p:1}} onClick={(event) => handleUndo(event)}>Undo</IconButton>
+                <IconButton sx = {{p:1}} onClick={(event) => handleRedo(event)}>Redo</IconButton>
+                <IconButton sx ={{p:1}} onClick={(event) => handlePublishList(event, idNamePair._id)}>Publish</IconButton>
+                <IconButton sx = {{p:1}} onClick={(event) =>handleDeleteList(event, idNamePair._id)}>Delete</IconButton>
+                <IconButton sx ={{p:1}} onClick={(event) => handleDuplicateList(event, idNamePair._id)}>Duplicate</IconButton>
+                </>
+            }
+            { modalJSX }
+        </List>
     }
+    
     let selectClass = "unselected-list-card";
     if (selected) {
         selectClass = "selected-list-card";
@@ -110,46 +193,54 @@ function ListCard(props) {
     if (auth.getUserInitials() != ""){
         username = auth.getUserName();
     }
-    let published = "";
-    
+    let hello = ""; 
+
     let cardElement =
         <ListItem
             id={idNamePair._id}
             key={idNamePair._id}
-            className={selectClass}
-            sx={{borderRadius:"25px", p: "10px", bgcolor: '#8000F00F', marginTop: '15px', display: 'flex', p: 1 }}
+            sx={{borderRadius:"0", p: "10px", bgcolor: '#8000F00F', marginTop: '15px', p: 1 }}
             style={{transform:"translate(1%,0%)", width: '100%', fontSize: '12pt' }}
             button
             onDoubleClick={(event) => {
                    handleToggleEdit(event)
             }}
         >
-            <Accordion sx={{height: "100%", width: "100%"}} expanded={expanded} onChange={(event, isExpanded) => handleChange(isExpanded, true)} onClick={(event) => {
-                handleLoadList(event, idNamePair._id)
-            }}>
-                <AccordionSummary id='panel' expandIcon={<KeyboardDoubleArrowDownIcon/>}>
-                    <Box sx ={{display: "flex", alignItems:"flex-start", flexDirection: "column", p: 1, m: 1, borderRadius: 1}}>
-                        <Box>
-                            <div id="name-playlist">{idNamePair.name}</div></Box>
-                        <Box>By: {username}</Box>
-                        <Box>{published}</Box>
-                    </Box>
-                    <Box sx ={{display: "flex", alignItems:"flex-start", flexDirection: "row", p: 1, m: 1, borderRadius: 1}}>
-                    <Box sx={{m:2}}>
-                        <IconButton onClick={(event) => {
-                        handleLikes(event)}}><ThumbUpIcon/></IconButton>
-                        <Box></Box>
-                    </Box>
-                    <Box sx={{m:3}}>
-                        <IconButton onClick={(event) => {
-                        handleDislikes(event)}}><ThumbDownIcon /></IconButton>
-                    </Box>
-                    </Box>
-                </AccordionSummary>
-                <AccordionDetails>
-                    
-                </AccordionDetails>
-            </Accordion>
+            <div className = "playlist-card">
+                <div>
+                    <strong style={{fontSize: "13pt"}}>{idNamePair.name}</strong><br/>
+                    <strong style={{fontSize:"9pt"}}>By: {username}</strong>
+                    {/* {expanded ?
+                        <div className="songs-list">{playlistSongs}
+                        </div> :
+                        <div className="songs-list">{playlistSongs}
+                        </div>} */}
+                        {playlistSongs}
+                        
+                </div>
+                <div>
+                    {isPublished ?
+                        <>
+                            <strong style={{fontSize:"9pt"}}>{published}</strong>
+                            <IconButton sx = {{position: "absolute", top: "0%", left: "45%"}} onClick={(event) => handleLikes(event, idNamePair._id)}><ThumbUpIcon/> {likes}</IconButton>
+                            <IconButton sx ={{position: "absolute", top: "0%", left: "65%"}} onClick={(event) => handleDislikes(event, idNamePair._id)}><ThumbDownIcon/>{dislikes}</IconButton>
+                        </>:
+                        <>
+                            {hello}
+                        </>
+                    }
+                </div>
+                <div>
+                {!expanded ?
+                    <>
+                    <IconButton sx = {{position:"absolute", top:"0%", right: "0%"}} onClick={(event) =>handleExpand(event)}><KeyboardDoubleArrowDownIcon/></IconButton>
+                </> :
+                    <>
+                    <IconButton sx = {{position:"absolute", top: "0%", right: "0%"}}onClick={(event) => handleCollaspe(event)}><KeyboardDoubleArrowUpIcon/></IconButton>
+                    </>   
+                }
+                </div>    
+            </div>
         </ListItem>
         
 

@@ -31,7 +31,10 @@ export const GlobalStoreActionType = {
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
     EDIT_SONG: "EDIT_SONG",
     REMOVE_SONG: "REMOVE_SONG",
-    HIDE_MODALS: "HIDE_MODALS"
+    HIDE_MODALS: "HIDE_MODALS",
+    ENTER_SEARCH_FIELD: "ENTER_SEARCH_FIELD",
+    GET_PLAYLIST: "GET_PLAYLIST"
+
 }
 
 // WE'LL NEED THIS TO PROCESS TRANSACTIONS
@@ -63,7 +66,8 @@ function GlobalStoreContextProvider(props) {
     const history = useHistory();
 
     console.log("inside useGlobalStore");
-
+    const likes = [];
+    const dislikes = [];
     // SINCE WE'VE WRAPPED THE STORE IN THE AUTH CONTEXT WE CAN ACCESS THE USER HERE
     const { auth } = useContext(AuthContext);
     console.log("auth: " + auth);
@@ -211,6 +215,13 @@ function GlobalStoreContextProvider(props) {
                     listMarkedForDeletion: null
                 });
             }
+            case GlobalStoreActionType.GET_PLAYLIST: {
+                console.log("GET playlist in reducer");
+                return setStore({
+                    ...store,
+                    currentList: payload
+                })
+            }
             default:
                 return store;
         }
@@ -293,34 +304,51 @@ function GlobalStoreContextProvider(props) {
                 payload: newList
             }
             );
-
+            store.loadIdNamePairs();
             // IF IT'S A VALID LIST THEN LET'S START EDITING IT
-            history.push("/playlist/" + newList._id);
         }
         else {
             console.log("API FAILED TO CREATE A NEW LIST");
         }
+
     }
     let x = 1;
     store.duplicateList = async function (id) {
         const response = await api.getPlaylistById(id);
-        if (response.status === 201){
+        if (response.data.success){
             let dupList = response.data.playlist;
             let copyListName = dupList.name + x;
-            response = await api.createPlaylist(copyListName, dupList, auth.user.email);
-            if (response.status === 201){
+            response = await api.createPlaylist(copyListName, dupList.songs, auth.user.email);
+            if (response.data.success){
                 let finalDupList = response.data.playlist;
                 storeReducer({
                     type: GlobalStoreActionType.CREATE_NEW_LIST,
                     payload: finalDupList
                 });
-                history.push("/playlist/" + finalDupList._id);
+                store.loadIdNamePairs();
+                console.log("Duplicating");
+                
             }
             
         }
-        x++;
     }
+    store.getListById = function (id) {
+        console.log("GetListById " + id)
+        async function asyncGetListById(id) {
+            const response = await api.getPlaylistById(id);
+            if (response.data.success){
+                console.log("Successfully retrieved list " + response.data.playlist)
 
+                let l = response.data.playlist;
+                storeReducer({
+                    type: GlobalStoreActionType.GET_PLAYLIST,
+                    payload: l
+                })
+            }
+        }
+        asyncGetListById(id);
+        
+    }
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
     store.loadIdNamePairs = function () {
         async function asyncLoadIdNamePairs() {
@@ -339,7 +367,6 @@ function GlobalStoreContextProvider(props) {
         }
         asyncLoadIdNamePairs();
     }
-
     // THE FOLLOWING 5 FUNCTIONS ARE FOR COORDINATING THE DELETION
     // OF A LIST, WHICH INCLUDES USING A VERIFICATION MODAL. THE
     // FUNCTIONS ARE markListForDeletion, deleteList, deleteMarkedList,
@@ -423,13 +450,50 @@ function GlobalStoreContextProvider(props) {
                         type: GlobalStoreActionType.SET_CURRENT_LIST,
                         payload: playlist
                     });
-                    history.push("/playlist/" + playlist._id);
+                    // history.push("/playlist/" + playlist._id);
                 }
             }
         }
         asyncSetCurrentList(id);
     }
-
+    store.enterSearchField= function(event, type){
+        if (event.key === "Enter"){
+            event.preventDefault();
+            storeReducer({
+                type: GlobalStoreActionType.ENTER_SEARCH_FIELD,
+                payload: event.target.value,
+            });
+        }
+        else if (type === "change"){
+            storeReducer({
+                type: GlobalStoreActionType.ENTER_SEARCH_FIELD,
+                payload: event.target.value
+            });
+        }
+        else {
+            storeReducer({
+                type: GlobalStoreActionType.ENTER_SEARCH_FIELD,
+                payload: "",
+            });
+        }
+    }
+    store.sortLists = function(sortType){
+        const unPublishedLists = sortType.filter((list) => !list.published.isPublished);
+        const publishedList = sortType.filter((list) => list.published.isPublished);
+        if (store.sort.includes("name")){ //for the names of the playlists
+            if (store.sort.includes("a-z")){
+                sortType.sort((x,y) => x.name.toLowerCase().localeCompare(y.name.toLowerCase()));
+            }
+            else{
+                sortType.sort((x,y) => y.name.toLowerCase().localeCompare(x.name.toLowerCase()))
+            }
+        }
+        else if (store.sort === "newest"){
+            publishedList.sort((x,y) => {
+                const date1 = new Date()
+            });
+        }
+    }
     store.getPlaylistSize = function() {
         return store.currentList.songs.length;
     }

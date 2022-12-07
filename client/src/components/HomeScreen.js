@@ -1,9 +1,10 @@
-import React, { useContext, useEffect } from 'react'
+import React, { useContext, useEffect, useState  } from 'react'
 import { GlobalStoreContext } from '../store'
 import ListCard from './ListCard.js'
 import MUIDeleteModal from './MUIDeleteModal'
 import Grid from '@mui/material/Grid';
 import AddIcon from '@mui/icons-material/Add';
+import { TextField } from '@mui/material';
 import YouTube from 'react-youtube';
 import { positions } from '@mui/system'
 import Fab from '@mui/material/Fab'
@@ -36,7 +37,11 @@ const HomeScreen = () => {
     let playlist = [
         
     ];
-
+    let disabled=false;
+    const[tabIndex, setTabIndex] = useState(0);
+    const handleTabChange = (event, newTabIndex) => {
+        setTabIndex(newTabIndex);
+    }
     // THIS IS THE INDEX OF THE SONG CURRENTLY IN USE IN THE PLAYLIST
     let currentSong = 0;
 
@@ -71,7 +76,9 @@ const HomeScreen = () => {
         loadAndPlayCurrentSong(event.target);
         event.target.playVideo();
     }
+    function handlePostingComment() {
 
+    }
     // THIS IS OUR EVENT HANDLER FOR WHEN THE YOUTUBE PLAYER'S STATE
     // CHANGES. NOTE THAT playerStatus WILL HAVE A DIFFERENT INTEGER
     // VALUE TO REPRESENT THE TYPE OF STATE CHANGE. A playerStatus
@@ -102,6 +109,7 @@ const HomeScreen = () => {
         }
     }
     const handleCreateNewList = (event) => {
+        event.stopPropagation();
         store.createNewList();
     }
     const handleGoPreviousSong = (event) => {
@@ -109,9 +117,6 @@ const HomeScreen = () => {
         
     }
     const handleStopVideo = (event) => {
-
-    }
-    const handleCommentOpen = (event)=>{
 
     }
     const handlePlayVideo = (event) => {
@@ -146,51 +151,65 @@ const HomeScreen = () => {
                 listCard
             }
             <MUIDeleteModal />
-            <Tabs
-                aria-label="player-comments"
-                id="tabs-for-video"
-            >
-                <Tab value="player" label="Player" />
-                <Tab value="comments" label="Comments" onClick={handleCommentOpen}/>
-            </Tabs>
-            <YouTube sx={{position: "fixed", top: 0, right: 0, zIndex: 2000}} id="video-player"
-            videoId={playlist[currentSong]}
-            opts={playerOptions}
-            onReady={onPlayerReady}
-            onStateChange={onPlayerStateChange}></YouTube>
-            <Box sx = {{bgcolor: "white"}} id = "song-info">
-                <div id = "Now-playing-field">
-                    <div id="Now-playing-text">
-                        Now Playing:
-                    </div>
-                    <div id="Playlist-name">
-                        Playlist: {playlistName}
-                    </div>
-                    <div id="Song-number">
-                        Song number: {num}
-                    </div>
-                    <div id="song-title">
-                        Song title: {song}
-                    </div>
-                    <div id="artist-of-song">
-                        Artist: {artist}
-                    </div>
-                    <Box sx = {{display: "flex", justifyContent: "center", flexDirection: "row", p: 1, m: 1, borderRadius: 1, bgcolor: "orange"}}>
-                        <Box>
-                            <IconButton onClick={handleGoPreviousSong}><FastRewindIcon/></IconButton>
-                        </Box>
-                        <Box>
-                            <IconButton onClick={handleStopVideo}><StopIcon/></IconButton>
-                        </Box>
-                        <Box>
-                            <IconButton onClick={handlePlayVideo}><PlayArrowIcon/></IconButton>
-                        </Box>
-                        <Box>
-                            <IconButton onClick={handleGoNextSong}><FastForwardIcon/></IconButton>
-                        </Box>
-                    </Box>
-                </div>
+            <Box>
+                <Tabs value={tabIndex} onChange={handleTabChange} id = "tabs-for-video">
+                    <Tab label="Player"/>
+                    <Tab label="Comments"/>
+                </Tabs>
             </Box>
+            <Box>
+                {tabIndex === 0 && (
+                    <Box>
+                        <YouTube sx={{position: "fixed", top: 0, right: 0, zIndex: 2000}} id="video-player"
+                        videoId={playlist[currentSong]}
+                        opts={playerOptions}
+                        onReady={onPlayerReady}
+                        onStateChange={onPlayerStateChange}></YouTube>
+                    <Box sx = {{bgcolor: "white"}} id = "song-info">
+                    <div id = "Now-playing-field">
+                        <div id="Now-playing-text">
+                            Now Playing:
+                        </div>
+                        <div id="Playlist-name">
+                            Playlist: {playlistName}
+                        </div>
+                        <div id="Song-number">
+                            Song number: {num}
+                        </div>
+                        <div id="song-title">
+                            Song title: {song}
+                        </div>
+                        <div id="artist-of-song">
+                            Artist: {artist}
+                        </div>
+                        <Box sx = {{display: "flex", justifyContent: "center", flexDirection: "row", p: 1, m: 1, borderRadius: 1, bgcolor: "orange"}}>
+                            <Box>
+                                <IconButton onClick={handleGoPreviousSong}><FastRewindIcon/></IconButton>
+                            </Box>
+                            <Box>
+                                <IconButton onClick={handleStopVideo}><StopIcon/></IconButton>
+                            </Box>
+                            <Box>
+                                <IconButton onClick={handlePlayVideo}><PlayArrowIcon/></IconButton>
+                            </Box>
+                            <Box>
+                                <IconButton onClick={handleGoNextSong}><FastForwardIcon/></IconButton>
+                            </Box>
+                        </Box>
+                    </div>
+                </Box>
+                </Box>
+                    
+                )}
+                {tabIndex === 1 && (
+                    <Box id="comment-section" overflow="scroll">
+                        Comment Section
+                        <TextField id="type-in-comment" label="Please enter a comment" variant="outlined" disabled={disabled} onKeyPress={handlePostingComment}/>
+                    </Box>
+                )}
+            </Box>
+            
+            
             <Box sx={{bgcolor: "background.paper", bottom: 0, left: "50%", position: "absolute"}}>
                 <Fab sx={{transform:"translate(-20%, 0%)", bottom: "10%", left:"-50%", position: "absolute"}}
                     color="blue" 

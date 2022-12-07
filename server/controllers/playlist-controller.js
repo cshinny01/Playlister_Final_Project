@@ -204,7 +204,14 @@ updatePlaylist = async (req, res) => {
                 message: 'Playlist not found!',
             })
         }
-
+        playlist.name = body.name
+        playlist.items = body.items
+        playlist.owner = body.owner
+        playlist.likes = body.likes
+        playlist.dislikes = body.dislikes
+        playlist.comments = body.comments
+        playlist.views = body.views
+        playlist.published = body.published
         // DOES THIS LIST BELONG TO THIS USER?
         async function asyncFindUser(list) {
             await User.findOne({ email: list.ownerEmail }, (err, user) => {

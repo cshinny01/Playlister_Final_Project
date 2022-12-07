@@ -16,19 +16,18 @@ function Statusbar() {
     function clickHandler() {
         store.tryAcessingOtherAccountPlaylist();
     }
-
+    let toolbar = <></>;
     const { auth } = useContext(AuthContext);
     const { store } = useContext(GlobalStoreContext);
     console.log("logged in: " +  auth.loggedIn);
     let text ="";
     if (auth.loggedIn && store.currentList){
         text = store.currentList.name;
+        toolbar = <EditToolbar />;
     return (
         <div id="playlister-statusbar">
             {text}
-            <div id="edit-toolbar">
-                <EditToolbar/>
-            </div>
+            {toolbar}
         </div>
         
     );
