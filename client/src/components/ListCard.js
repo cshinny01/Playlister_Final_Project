@@ -32,12 +32,10 @@ import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp
 function ListCard(props) {
     const { store } = useContext(GlobalStoreContext);
     const { auth } = useContext(AuthContext);
-    const [isChecked, setIsChecked] = React.useState(false);
     const [editActive, setEditActive] = useState(false);
     const [text, setText] = useState("");
     const [isPublished, setPublished] = useState(false);
     const { idNamePair, selected, songs } = props;
-    const [open, setOpen] = useState(false);
     const [ expanded, setExpanded ] = useState(false);
     store.history = useHistory()
 
@@ -63,8 +61,8 @@ function ListCard(props) {
         store.closeCurrentList();
         console.log("not expanded");
     }
-    let likes = "";
-    let dislikes = "";
+    let likes = 0;
+    let dislikes = 0;
     let modalJSX = "";
     if (store.isEditSongModalOpen()) {
         modalJSX = <MUIEditSongModal />;
@@ -112,9 +110,8 @@ function ListCard(props) {
         event.stopPropagation();
         store.redo();
     }
-    function handlePublishList(event, id){
-        event.stopPropagation();
-        setPublished(true);
+    let published = "";
+    function handlePublishList(id){
         store.publishList(id);
     }
     function handleKeyPress(event) {
@@ -129,22 +126,25 @@ function ListCard(props) {
         event.stopPropagation();
         setText(event.target.value);
     }
-    function handleDuplicateList(event, id){
-        event.stopPropagation();
+    function handleDuplicateList(id){
         store.duplicateList(id);
     }
-    let date = new Date();
-    let day = date.getDate();
-    let month = date.getMonth()+1;
-    let year = date.getFullYear();
-    let published = "published on " + month + "/" + day + "/" + year;
-    
+    let pub = "";
+    if (store?.currentList?.published){
+        pub =
+        <>
+        <strong style={{fontSize:"9pt"}}>{published}</strong>
+        <IconButton sx = {{position: "absolute", top: "0%", left: "45%"}} onClick={(event) => handleLikes(event, idNamePair._id)}><ThumbUpIcon/> {likes}</IconButton>
+        <IconButton sx ={{position: "absolute", top: "0%", left: "65%"}} onClick={(event) => handleDislikes(event, idNamePair._id)}><ThumbDownIcon/>{dislikes}</IconButton>
+    </>;
+    }
     if (store?.currentList?._id === idNamePair._id){
         console.log("Current list is equal to this list card")
 
         playlistSongs= <List sx ={{height:"100%", overflow: "auto", width: "auto"}}>
             {
                 store.currentList.songs?.map((song, index) => (
+                    
                     <SongCard
                         id={'playlist-song-' + (index)}
                         key={'playlist-song-' + (index)}
@@ -153,7 +153,7 @@ function ListCard(props) {
                     />
                 ))  
             }
-            {!isPublished ?
+            {!store.currentList.published ?
                 <>
                 <Button sx={{p:1, width:"100%", justifyContent: "flex-center"}} onClick={(event) => {handleAddSong(event)}}>
                 <AddIcon />
@@ -162,7 +162,7 @@ function ListCard(props) {
                 <></>
                 }
             
-            {isPublished?
+            {store.currentList.published?
 
                 <>  
                 
@@ -172,12 +172,13 @@ function ListCard(props) {
                 <>
                 <IconButton sx = {{p:1}} onClick={(event) => handleUndo(event)}>Undo</IconButton>
                 <IconButton sx = {{p:1}} onClick={(event) => handleRedo(event)}>Redo</IconButton>
-                <IconButton sx ={{p:1}} onClick={(event) => handlePublishList(event, idNamePair._id)}>Publish</IconButton>
+                <IconButton sx ={{p:1}} onClick={() => handlePublishList(idNamePair._id)}>Publish</IconButton>
                 <IconButton sx = {{p:1}} onClick={(event) =>handleDeleteList(event, idNamePair._id)}>Delete</IconButton>
                 <IconButton sx ={{p:1}} onClick={(event) => handleDuplicateList(event, idNamePair._id)}>Duplicate</IconButton>
+                { modalJSX }
                 </>
             }
-            { modalJSX }
+            
         </List>
     }
     
@@ -219,15 +220,7 @@ function ListCard(props) {
                         
                 </div>
                 <div>
-                    {isPublished ?
-                        <>
-                            <strong style={{fontSize:"9pt"}}>{published}</strong>
-                            <IconButton sx = {{position: "absolute", top: "0%", left: "45%"}} onClick={(event) => handleLikes(event, idNamePair._id)}><ThumbUpIcon/> {likes}</IconButton>
-                            <IconButton sx ={{position: "absolute", top: "0%", left: "65%"}} onClick={(event) => handleDislikes(event, idNamePair._id)}><ThumbDownIcon/>{dislikes}</IconButton>
-                        </>:
-                        <>
-                            {hello}
-                        </>
+                    {pub
                     }
                 </div>
                 <div>

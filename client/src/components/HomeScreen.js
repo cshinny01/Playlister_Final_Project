@@ -3,6 +3,7 @@ import { GlobalStoreContext } from '../store'
 import ListCard from './ListCard.js'
 import MUIDeleteModal from './MUIDeleteModal'
 import Grid from '@mui/material/Grid';
+import ReactPlayer from 'react-player'
 import AddIcon from '@mui/icons-material/Add';
 import { TextField } from '@mui/material';
 import YouTube from 'react-youtube';
@@ -17,9 +18,10 @@ import FastForwardIcon from '@mui/icons-material/FastForward';
 import IconButton from '@mui/material/IconButton';
 import StopIcon from '@mui/icons-material/Stop';
 import PlayArrowIcon from '@mui/icons-material/PlayArrow';
-import WorkspaceScreen from './WorkspaceScreen';
-import AppBar from '@mui/material/AppBar';
-import YouTubePlayerExample from './YoutubePlaylisterReact.js';
+import AppBanner from './AppBanner.js';
+import AppToolbar from './AppToolbar.js';
+import App from '../App';
+
 /*
     This React component lists all the top5 lists in the UI.
     
@@ -27,105 +29,32 @@ import YouTubePlayerExample from './YoutubePlaylisterReact.js';
 */
 const HomeScreen = () => {
     const { store } = useContext(GlobalStoreContext);
+    const {playlist, setPlaylist} = useState([]);
+    const [playing, setPlaying] = useState(true);
     let playlistName = "";
     let num = "";
     let song = "";
     let artist = "";
+    let currentSong = 0;
+    let url = "https://www.youtube.com/watch?v=";
     useEffect(() => {
         store.loadIdNamePairs();
     }, []);
-    let playlist = [
-        
-    ];
     let disabled=false;
     const[tabIndex, setTabIndex] = useState(0);
     const handleTabChange = (event, newTabIndex) => {
         setTabIndex(newTabIndex);
     }
     // THIS IS THE INDEX OF THE SONG CURRENTLY IN USE IN THE PLAYLIST
-    let currentSong = 0;
 
-    const playerOptions = {
-        height: '390',
-        width: '640',
-        playerVars: {
-            // https://developers.google.com/youtube/player_parameters
-            autoplay: 0,
-        },
-    };
-    function loadAndPlayCurrentSong(player) {
-        let song = playlist[currentSong];
-        player.loadVideoById(song);
-        player.playVideo();
-    }
-    // THIS FUNCTION INCREMENTS THE PLAYLIST SONG TO THE NEXT ONE
-    function incSong() {
-        currentSong++;
-        currentSong = currentSong % playlist.length;
-    }
-    function decSong() {
-        if (currentSong != 0){
-            currentSong--;
-            currentSong = currentSong % playlist.length;
-        }
-        else{
-            console.log("At beginning of playlist");
-        }
-    }
-    function onPlayerReady(event) {
-        loadAndPlayCurrentSong(event.target);
-        event.target.playVideo();
-    }
+    
     function handlePostingComment() {
 
     }
-    // THIS IS OUR EVENT HANDLER FOR WHEN THE YOUTUBE PLAYER'S STATE
-    // CHANGES. NOTE THAT playerStatus WILL HAVE A DIFFERENT INTEGER
-    // VALUE TO REPRESENT THE TYPE OF STATE CHANGE. A playerStatus
-    // VALUE OF 0 MEANS THE SONG PLAYING HAS ENDED.
-    function onPlayerStateChange(event) {
-        let playerStatus = event.data;
-        let player = event.target;
-        if (playerStatus === -1) {
-            // VIDEO UNSTARTED
-            console.log("-1 Video unstarted");
-        } else if (playerStatus === 0) {
-            // THE VIDEO HAS COMPLETED PLAYING
-            console.log("0 Video ended");
-            incSong();
-            loadAndPlayCurrentSong(player);
-        } else if (playerStatus === 1) {
-            // THE VIDEO IS PLAYED
-            console.log("1 Video played");
-        } else if (playerStatus === 2) {
-            // THE VIDEO IS PAUSED
-            console.log("2 Video paused");
-        } else if (playerStatus === 3) {
-            // THE VIDEO IS BUFFERING
-            console.log("3 Video buffering");
-        } else if (playerStatus === 5) {
-            // THE VIDEO HAS BEEN CUED
-            console.log("5 Video cued");
-        }
-    }
+    
     const handleCreateNewList = (event) => {
         event.stopPropagation();
         store.createNewList();
-    }
-    const handleGoPreviousSong = (event) => {
-        decSong();
-        
-    }
-    const handleStopVideo = (event) => {
-
-    }
-    const handlePlayVideo = (event) => {
-        loadAndPlayCurrentSong(event.target);
-        event.target.playVideo();
-    }
-    const handleGoNextSong = (event) => {
-        incSong();
-        event.target.playVideo();
     }
     let listCard = "";
     if (store) {
@@ -148,7 +77,7 @@ const HomeScreen = () => {
                 </div>
             <Box sx={{bgcolor:"background.paper"}} id="list-selector-list">
             {
-                listCard
+                listCard 
             }
             <MUIDeleteModal />
             <Box>
@@ -160,11 +89,7 @@ const HomeScreen = () => {
             <Box>
                 {tabIndex === 0 && (
                     <Box>
-                        <YouTube sx={{position: "fixed", top: 0, right: 0, zIndex: 2000}} id="video-player"
-                        videoId={playlist[currentSong]}
-                        opts={playerOptions}
-                        onReady={onPlayerReady}
-                        onStateChange={onPlayerStateChange}></YouTube>
+                        <ReactPlayer playing ={playing} sx={{position: "fixed", top: 0, right: 0, zIndex: 2000, width: "50%"}} url= "https://www.youtube.com/watch?v=dQw4w9WgXcQ" id="video-player"/>
                     <Box sx = {{bgcolor: "white"}} id = "song-info">
                     <div id = "Now-playing-field">
                         <div id="Now-playing-text">
@@ -184,27 +109,27 @@ const HomeScreen = () => {
                         </div>
                         <Box sx = {{display: "flex", justifyContent: "center", flexDirection: "row", p: 1, m: 1, borderRadius: 1, bgcolor: "orange"}}>
                             <Box>
-                                <IconButton onClick={handleGoPreviousSong}><FastRewindIcon/></IconButton>
+                                <IconButton><FastRewindIcon/></IconButton>
                             </Box>
                             <Box>
-                                <IconButton onClick={handleStopVideo}><StopIcon/></IconButton>
+                                <IconButton onClick={() => setPlaying(false)}><StopIcon/></IconButton>
                             </Box>
                             <Box>
-                                <IconButton onClick={handlePlayVideo}><PlayArrowIcon/></IconButton>
+                                <IconButton onClick={() => setPlaying(true)}><PlayArrowIcon/></IconButton>
                             </Box>
                             <Box>
-                                <IconButton onClick={handleGoNextSong}><FastForwardIcon/></IconButton>
+                                <IconButton ><FastForwardIcon/></IconButton>
                             </Box>
                         </Box>
                     </div>
-                </Box>
+                    </Box>
                 </Box>
                     
                 )}
                 {tabIndex === 1 && (
-                    <Box id="comment-section" overflow="scroll">
+                    <Box id="comment-section" overflow="auto">
                         Comment Section
-                        <TextField id="type-in-comment" label="Please enter a comment" variant="outlined" disabled={disabled} onKeyPress={handlePostingComment}/>
+                        <TextField id="type-in-comment" label="Please enter a comment" variant="outlined" disabled={disabled} onKeyPress={handlePostingComment} width="30px" top="100%"/>
                     </Box>
                 )}
             </Box>

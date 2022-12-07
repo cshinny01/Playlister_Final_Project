@@ -205,17 +205,17 @@ updatePlaylist = async (req, res) => {
             })
         }
         playlist.name = body.name
-        playlist.items = body.items
-        playlist.owner = body.owner
+        playlist.ownerEmail = body.email
+        playlist.songs = body.songs
         playlist.likes = body.likes
         playlist.dislikes = body.dislikes
         playlist.comments = body.comments
-        playlist.views = body.views
+        playlist.listens = body.listens
         playlist.published = body.published
+        playlist.publishedDate = body.published
         // DOES THIS LIST BELONG TO THIS USER?
         async function asyncFindUser(list) {
             await User.findOne({ email: list.ownerEmail }, (err, user) => {
-                console.log("user._id: " + user._id);
                 console.log("req.userId: " + req.userId);
                 if (user._id == req.userId) {
                     console.log("correct user!");

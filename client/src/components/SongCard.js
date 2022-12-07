@@ -27,6 +27,7 @@ function SongCard(props) {
 
     function handleDrop(event) {
         event.preventDefault();
+        event.stopPropagation();
         let targetIndex = index;
         let sourceIndex = Number(event.dataTransfer.getData("song"));
         setDraggedTo(false);
