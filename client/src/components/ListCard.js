@@ -61,8 +61,7 @@ function ListCard(props) {
         store.closeCurrentList();
         console.log("not expanded");
     }
-    let likes = 0;
-    let dislikes = 0;
+    
     let modalJSX = "";
     if (store.isEditSongModalOpen()) {
         modalJSX = <MUIEditSongModal />;
@@ -94,14 +93,18 @@ function ListCard(props) {
         _id = ("" + _id).substring("delete-list-".length);
         store.markListForDeletion(id);
     }
+    let likes = 0;
+    let dislikes = 0;
     function handleLikes(event, id){
         event.stopPropagation();
         store.addLikes(id);
+        
     }
     function handleDislikes(event, id){
         event.stopPropagation();
         store.addDislikes(id);
     }
+    
     function handleUndo(event){
         event.stopPropagation();
         store.undo();
@@ -110,8 +113,11 @@ function ListCard(props) {
         event.stopPropagation();
         store.redo();
     }
-    let published = "";
-    function handlePublishList(id){
+
+
+    function handlePublishList(event, id){
+        event.stopPropagation();
+        setPublished(true);
         store.publishList(id);
     }
     function handleKeyPress(event) {
@@ -126,14 +132,20 @@ function ListCard(props) {
         event.stopPropagation();
         setText(event.target.value);
     }
-    function handleDuplicateList(id){
+    function handleDuplicateList(event, id){
+        event.stopPropagation();
         store.duplicateList(id);
     }
     let pub = "";
-    if (store?.currentList?.published){
+    var today = new Date();
+    var dd = String(today.getDate()).padStart(2, '0');
+    var mm = String(today.getMonth() + 1).padStart(2, '0'); 
+    var yyyy = today.getFullYear();
+    let date = mm + "/" + dd + "/" + yyyy;
+    if (isPublished){
         pub =
         <>
-        <strong style={{fontSize:"9pt"}}>{published}</strong>
+        <strong style={{fontSize:"9pt"}}>Published On: {date}</strong>
         <IconButton sx = {{position: "absolute", top: "0%", left: "45%"}} onClick={(event) => handleLikes(event, idNamePair._id)}><ThumbUpIcon/> {likes}</IconButton>
         <IconButton sx ={{position: "absolute", top: "0%", left: "65%"}} onClick={(event) => handleDislikes(event, idNamePair._id)}><ThumbDownIcon/>{dislikes}</IconButton>
     </>;
@@ -153,7 +165,7 @@ function ListCard(props) {
                     />
                 ))  
             }
-            {!store.currentList.published ?
+            {!store?.currentList?.published ?
                 <>
                 <Button sx={{p:1, width:"100%", justifyContent: "flex-center"}} onClick={(event) => {handleAddSong(event)}}>
                 <AddIcon />
@@ -162,7 +174,7 @@ function ListCard(props) {
                 <></>
                 }
             
-            {store.currentList.published?
+            {store?.currentList?.published ?
 
                 <>  
                 
@@ -172,7 +184,7 @@ function ListCard(props) {
                 <>
                 <IconButton sx = {{p:1}} onClick={(event) => handleUndo(event)}>Undo</IconButton>
                 <IconButton sx = {{p:1}} onClick={(event) => handleRedo(event)}>Redo</IconButton>
-                <IconButton sx ={{p:1}} onClick={() => handlePublishList(idNamePair._id)}>Publish</IconButton>
+                <IconButton sx ={{p:1}} onClick={(event) => handlePublishList(event, idNamePair._id)}>Publish</IconButton>
                 <IconButton sx = {{p:1}} onClick={(event) =>handleDeleteList(event, idNamePair._id)}>Delete</IconButton>
                 <IconButton sx ={{p:1}} onClick={(event) => handleDuplicateList(event, idNamePair._id)}>Duplicate</IconButton>
                 { modalJSX }

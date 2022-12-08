@@ -44,7 +44,7 @@ createPlaylist = (req, res) => {
                     })
                     .catch(error => {
                         return res.status(400).json({
-                            errorMessage: 'Playlist Not Created!'
+                            errorMessage: error.message
                         })
                     })
             });
@@ -204,18 +204,11 @@ updatePlaylist = async (req, res) => {
                 message: 'Playlist not found!',
             })
         }
-        playlist.name = body.name
-        playlist.ownerEmail = body.email
-        playlist.songs = body.songs
-        playlist.likes = body.likes
-        playlist.dislikes = body.dislikes
-        playlist.comments = body.comments
-        playlist.listens = body.listens
-        playlist.published = body.published
-        playlist.publishedDate = body.published
+        
         // DOES THIS LIST BELONG TO THIS USER?
         async function asyncFindUser(list) {
             await User.findOne({ email: list.ownerEmail }, (err, user) => {
+                console.log("user._id: " + user._id);
                 console.log("req.userId: " + req.userId);
                 if (user._id == req.userId) {
                     console.log("correct user!");

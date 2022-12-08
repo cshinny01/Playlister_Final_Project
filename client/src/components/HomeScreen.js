@@ -56,6 +56,10 @@ const HomeScreen = () => {
         event.stopPropagation();
         store.createNewList();
     }
+    const handleAddSong = (event, id) => {
+        event.stopPropagation();
+        setPlaylist()
+    }
     let listCard = "";
     if (store) {
         listCard = 
@@ -66,6 +70,7 @@ const HomeScreen = () => {
                         key={pair._id}
                         idNamePair={pair}
                         selected={false}
+                        
                     />
                 ))
             }
@@ -77,7 +82,8 @@ const HomeScreen = () => {
                 </div>
             <Box sx={{bgcolor:"background.paper"}} id="list-selector-list">
             {
-                listCard 
+                listCard
+                
             }
             <MUIDeleteModal />
             <Box>
@@ -93,7 +99,7 @@ const HomeScreen = () => {
                     <Box sx = {{bgcolor: "white"}} id = "song-info">
                     <div id = "Now-playing-field">
                         <div id="Now-playing-text">
-                            Now Playing:
+                              Now Playing:
                         </div>
                         <div id="Playlist-name">
                             Playlist: {playlistName}

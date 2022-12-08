@@ -8,6 +8,7 @@ import RemoveSong_Transaction from '../transactions/RemoveSong_Transaction'
 import UpdateSong_Transaction from '../transactions/UpdateSong_Transaction'
 import AuthContext from '../auth'
 import { Global } from '@emotion/react'
+import { textFieldClasses } from '@mui/material'
 
 /*
     This is our global data store. Note that it uses the Flux design pattern,
@@ -345,28 +346,22 @@ function GlobalStoreContextProvider(props) {
         tps.clearAllTransactions();
         history.push("/");
     }
-    store.addLikes = async function(id){
-        const response = await api.getPlaylistById(id);
-        if (response.data.success){
-            let list = response.data.playlist;
-
-        }
-
-    }
     // THIS FUNCTION CREATES A NEW LIST
     store.createNewList = async function () {
         let newListName = "Untitled" + store.newListCounter;
-        let p = {isPublished: false, publishedDate: new Date()};
-        const response = await api.createPlaylist(newListName, [], auth.user.email, [], [], [], [], false, new Date());
+        let p = false;
+        console.log("Making list");
+        const response = await api.createPlaylist(newListName, [], auth.user.email, [], [], p, new Date(), [], [[]]);
         console.log("createNewList response: " + response);
         if (response.status === 201) {
             tps.clearAllTransactions();
             let newList = response.data.playlist;
             storeReducer({
                 type: GlobalStoreActionType.CREATE_NEW_LIST,
-                payload: newList
-            }
-            );
+                payload: {
+                    currentList: newList
+                }
+            });
             store.loadIdNamePairs();
             // IF IT'S A VALID LIST THEN LET'S START EDITING IT
         }
@@ -377,11 +372,11 @@ function GlobalStoreContextProvider(props) {
     }
     let x = "(1)";
     store.duplicateList = async function (id) {
-        const response = await api.getPlaylistById(id);
+        let response = await api.getPlaylistById(id);
         if (response.data.success){
             let dupList = response.data.playlist;
             let copyListName = dupList.name + x;
-            response = await api.createPlaylist(copyListName, dupList.songs, auth.user.email);
+            response = await api.createPlaylist(copyListName, dupList.songs, auth.user.email, [], [], false, new Date(), [], [[]]);
             if (response.data.success){
                 let finalDupList = response.data.playlist;
                 storeReducer({
@@ -440,6 +435,7 @@ function GlobalStoreContextProvider(props) {
         else if (store.sortType === "dislikes"){
             listCards.sort((x,y) => y.dislikes.length - x.listens.length);
         }
+        return listCards;
     }   
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
     store.loadIdNamePairs = function () {
@@ -700,13 +696,13 @@ function GlobalStoreContextProvider(props) {
         asyncUpdateCurrentList();
     }
     store.publishList = async function(id){
-        const response = await api.getPlaylistById(id);
+        let response = await api.getPlaylistById(id);
         if (response.data.success){
             let list = response.data.playlist;
             list.published = true;
-            const date = Date.now();
-            const currentDate = new Date(date);
-            list.publishedDate = currentDate;
+            const t = Date.now();
+            const date = new Date(t);
+            list.publishedDate = date;
             response = await api.updatePlaylistById(id, list);
             if (response.data.success){
                 storeReducer({
@@ -769,3 +765,5 @@ function GlobalStoreContextProvider(props) {
 
 export default GlobalStoreContext;
 export { GlobalStoreContextProvider };
+
+
