@@ -36,7 +36,6 @@ const HomeScreen = () => {
     let song = "";
     let artist = "";
     let currentSong = 0;
-    let url = "https://www.youtube.com/watch?v=";
     useEffect(() => {
         store.loadIdNamePairs();
     }, []);
@@ -55,10 +54,6 @@ const HomeScreen = () => {
     const handleCreateNewList = (event) => {
         event.stopPropagation();
         store.createNewList();
-    }
-    const handleAddSong = (event, id) => {
-        event.stopPropagation();
-        setPlaylist()
     }
     let listCard = "";
     if (store) {

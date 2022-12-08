@@ -1,9 +1,16 @@
 import { Link } from 'react-router-dom';
+import { useContext } from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import AuthContext from '../auth';
 export default function SplashScreen() {
+const {auth} = useContext(AuthContext);
+
+    const handleGuest = () => {
+        auth.guestUser();
+    }
     return (
         <div id="splash-screen">
             Playlister
@@ -32,10 +39,11 @@ export default function SplashScreen() {
             <div id="guest-user">
                 Want to explore? Continue as guest!
             </div>
-            <Link to='/register'>
+            <Link to='/'>
                 <Button
                     variant="contained"
                     size="medium"
+                    onClick={handleGuest}
                     sx={{margin:2, top:5}}>Continue as Guest</Button>
             </Link>
         </div>

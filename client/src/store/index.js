@@ -347,6 +347,13 @@ function GlobalStoreContextProvider(props) {
         history.push("/");
     }
     // THIS FUNCTION CREATES A NEW LIST
+    store.getPlaylistSongs = async function(id){
+        const response = await api.getPlaylistById(id);
+        if (response.data.success){
+            let s = response.data.playlist.songs;
+            return s;
+        }
+    }
     store.createNewList = async function () {
         let newListName = "Untitled" + store.newListCounter;
         let p = false;

@@ -41,11 +41,13 @@ function SongCard(props) {
         store.showRemoveSongModal(index, song);
     }
     function handleClick(event) {
+        event.stopPropagation();
         // DOUBLE CLICK IS FOR SONG EDITING
         if (event.detail === 2) {
             console.log("double clicked");
             store.showEditSongModal(index, song);
         }
+        
     }
 
     let cardClass = "list-card unselected-list-card";

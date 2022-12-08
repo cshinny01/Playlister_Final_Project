@@ -10,9 +10,10 @@ export const AuthActionType = {
     GET_LOGGED_IN: "GET_LOGGED_IN",
     LOGIN_USER: "LOGIN_USER",
     LOGOUT_USER: "LOGOUT_USER",
-    REGISTER_USER: "REGISTER_USER"
+    REGISTER_USER: "REGISTER_USER",
+    GUEST_USER: "GUEST_USER"
 }
-
+const x = 1;
 function AuthContextProvider(props) {
     const [auth, setAuth] = useState({
         user: null,
@@ -56,6 +57,13 @@ function AuthContextProvider(props) {
                     errorMessage: payload.errorMessage
                 })
             }
+            case AuthActionType.GUEST_USER: {
+                return setAuth({
+                    user: payload.user,
+                    loggedIn: payload.loggedIn,
+                    errorMessage: payload.errorMessage
+                })
+            }
             default:
                 return auth;
         }
@@ -73,7 +81,25 @@ function AuthContextProvider(props) {
             });
         }
     }
-
+    auth.guestUser = async function(){
+        let response = await api.registerUser("guest", "guest", "guest" + x, "asdfasdf", "asdfasdf");
+        if (response.status === 200){
+            console.log("Guest in");
+            response = await api.loginUser("guest" + x, "asdfasdf");
+            if (response.status === 200){
+                authReducer({
+                    type: AuthActionType.GUEST_USER,
+                    payload: {
+                        user: response.data.user,
+                        loggedIn: true,
+                        errorMessage: null
+                    }
+                })
+                x++;
+            }
+            
+        }
+    }
     auth.registerUser = async function(firstName, lastName, email, password, passwordVerify) {
         console.log("REGISTERING USER");
         try{   
@@ -84,7 +110,7 @@ function AuthContextProvider(props) {
                     type: AuthActionType.REGISTER_USER,
                     payload: {
                         user: response.data.user,
-                        loggedIn: true,
+                        loggedIn: false,
                         errorMessage: null
                     }
                 })
